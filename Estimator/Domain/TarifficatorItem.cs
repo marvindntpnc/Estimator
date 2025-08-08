@@ -1,0 +1,22 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using Estimator.Domain.Enums;
+
+namespace Estimator.Domain;
+
+public class TarifficatorItem
+{
+    public int Id{get;set;}
+    [ForeignKey("TariffFile")]
+    public int TarificatorId{get;set;}
+    public Tarifficator Tarifficator { get; set; }
+    public string ItemCode{get;set;}
+    public int CategoryId{get;set;}
+    public int SubcategoryId{get;set;}
+    public string Name{get;set;}
+    public string Description{get;set;}
+    public decimal Price{get;set;}
+    public CurrencyType CurrencyType{get;set;}
+    public MeasureType Measure{get;set;}
+    public TarificatorItemType TarificatorItemType{get;set;}
+    public string Discount{get;set;}
+}

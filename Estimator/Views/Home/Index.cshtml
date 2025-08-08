@@ -2,7 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
+<div id="loadingBlock" style="position: absolute;width: 100%;height: 100%; z-index: 9999;background-color: #ffffffcd;display: none; top: 0;left: 0;text-align: center">
+    <img src="css/images/loading.gif" alt="loading" style="position: sticky;top: 45%">
+</div>
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<input type="file" accept=".xlsx" id="tariffFile">
+<input type="checkbox" id="isFul" onclick="switchTarifficatorType()">
+<p id="tarifficatorType">ФУЛ</p>
+<button class="btn btn-primary" type="button" id="downloadBtn">download</button>
 </div>

@@ -1,4 +1,6 @@
 using Estimator.Data;
+using Estimator.Inerfaces;
+using Estimator.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 string connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
+builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryService<>));
+builder.Services.AddScoped(typeof(ITarifficatorService), typeof(TarifficatorService));
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
