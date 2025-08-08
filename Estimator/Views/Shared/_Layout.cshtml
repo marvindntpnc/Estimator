@@ -3,18 +3,35 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Estimator</title>
+    <title>@ViewData["Title"] - IUM_Estimator</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/Estimator.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/IUM_Estimator.styles.css" asp-append-version="true"/>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
+    <div class="row">
+        <nav class="menu-block">
+            <ul class="nav justify-content-center">
+                <li class="nav-item pb-4">
+                    <a class="nav-link active" aria-current="page" href="@Url.Action("Index")">Загрузить тарификатор</a>
+                </li>
+                <li class="nav-item pb-4">
+                    <a class="nav-link" href="@Url.Action("EstimateForming")">Сформировать смету</a>
+                </li>
+                <li class="nav-item pb-4">
+                    <a class="nav-link" href="@Url.Action("EstimateList")">Список смет</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="col-md-12">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
 </div>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

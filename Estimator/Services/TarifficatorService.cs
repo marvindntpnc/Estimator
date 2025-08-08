@@ -29,11 +29,14 @@ public class TarifficatorService: ITarifficatorService
     
         using var workbook = new XLWorkbook(stream);
         
-        // Кэшируем категории для оптимизации производительности
-        var allCategories = await _categoryRepository.GetAllAsync();
-        var categoryCache = allCategories.ToDictionary(c => c.Name, c => c);
-        var subcategoryCache = allCategories.Where(c => c.ParentCategoryId.HasValue)
-                                          .ToDictionary(c => $"{c.Name}_{c.ParentCategoryId}", c => c);
+        var tarifficatorItems = _tarifficatorItemRepository.GetWhereAsync(t => t.TarifficatorType == tarifficatorType);
+        if (tarifficatorItems.Count>0)
+        {
+            foreach (var item in tarifficatorItems)
+            {
+                await _tarifficatorItemRepository.DeleteAsync(item);
+            }
+        }
         switch (tarifficatorType)
         {
             case TarifficatorType.FUL:
@@ -60,13 +63,13 @@ public class TarifficatorService: ITarifficatorService
                         if (!row.Cell("B").Value.ToString().Trim().IsNullOrEmpty())
                         {
                             var categoryName = row.Cell("B").Value.ToString().Trim();
-                            var category = await GetOrCreateCategoryAsync(categoryName, categoryCache);
+                            var category = await GetOrCreateCategoryAsync(categoryName);
                             item.CategoryId = category.Id;
                             
                             if (!row.Cell("C").Value.ToString().Trim().IsNullOrEmpty())
                             {
                                 var subcategoryName = row.Cell("C").Value.ToString().Trim();
-                                var subCategory = await GetOrCreateSubcategoryAsync(subcategoryName, category.Id, subcategoryCache);
+                                var subCategory = await GetOrCreateSubcategoryAsync(subcategoryName, category.Id);
                                 item.SubcategoryId = subCategory.Id;
                             }
                         }
@@ -98,7 +101,7 @@ public class TarifficatorService: ITarifficatorService
                         if (!row.Cell("B").Value.ToString().Trim().IsNullOrEmpty())
                         {
                             var categoryName = row.Cell("B").Value.ToString().Trim();
-                            var category = await GetOrCreateCategoryAsync(categoryName, categoryCache);
+                            var category = await GetOrCreateCategoryAsync(categoryName);
                             item.CategoryId = category.Id;
                         }
 
@@ -131,12 +134,12 @@ public class TarifficatorService: ITarifficatorService
                         if (!row.Cell("B").Value.ToString().Trim().IsNullOrEmpty())
                         {
                             var categoryName = row.Cell("B").Value.ToString().Trim();
-                            var category = await GetOrCreateCategoryAsync(categoryName, categoryCache);
+                            var category = await GetOrCreateCategoryAsync(categoryName);
                             item.CategoryId = category.Id;
                             if (!row.Cell("C").Value.ToString().Trim().IsNullOrEmpty())
                             {
                                 var subcategoryName = row.Cell("C").Value.ToString().Trim();
-                                var subCategory = await GetOrCreateSubcategoryAsync(subcategoryName, category.Id, subcategoryCache);
+                                var subCategory = await GetOrCreateSubcategoryAsync(subcategoryName, category.Id);
                                 item.SubcategoryId = subCategory.Id;
                             }
                         }
@@ -175,28 +178,32 @@ public class TarifficatorService: ITarifficatorService
         return (await _categoryRepository.GetByIdAsync(categoryId))?.Name;
     }
     
-    public Category? GetCategoryByName(string categoryName)
+    public Category? GetCategoryByName(string categoryName, int parentCategoryId = 0)
     {
+        if (parentCategoryId>0)
+            return _categoryRepository.GetWhereAsync(c=>c.Name.ToLower().Contains(categoryName.ToLower()) &&
+                                                        c.ParentCategoryId==parentCategoryId).FirstOrDefault();
+        
         return _categoryRepository.GetWhereAsync(c=>c.Name.ToLower().Contains(categoryName.ToLower())).FirstOrDefault();
     }
     
-    private async Task<Category> GetOrCreateCategoryAsync(string categoryName, Dictionary<string, Category> categoryCache)
+    private async Task<Category> GetOrCreateCategoryAsync(string categoryName)
     {
-        if (categoryCache.TryGetValue(categoryName, out var existingCategory))
+        var existingCategory = GetCategoryByName(categoryName);
+        if (existingCategory!=null)
         {
             return existingCategory;
         }
         
         var category = new Category { Name = categoryName };
         await _categoryRepository.AddAsync(category);
-        categoryCache[categoryName] = category;
         return category;
     }
     
-    private async Task<Category> GetOrCreateSubcategoryAsync(string subcategoryName, int parentCategoryId, Dictionary<string, Category> subcategoryCache)
+    private async Task<Category> GetOrCreateSubcategoryAsync(string subcategoryName, int parentCategoryId)
     {
-        var cacheKey = $"{subcategoryName}_{parentCategoryId}";
-        if (subcategoryCache.TryGetValue(cacheKey, out var existingSubcategory))
+        var existingSubcategory = GetCategoryByName(subcategoryName,parentCategoryId);
+        if (existingSubcategory!=null)
         {
             return existingSubcategory;
         }
@@ -207,7 +214,6 @@ public class TarifficatorService: ITarifficatorService
             ParentCategoryId = parentCategoryId,
         };
         await _categoryRepository.AddAsync(subcategory);
-        subcategoryCache[cacheKey] = subcategory;
         return subcategory;
     }
 }

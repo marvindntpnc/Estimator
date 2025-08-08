@@ -3,6 +3,7 @@ using Estimator.Domain.Enums;
 using Estimator.Inerfaces;
 using Estimator.Models;
 using Estimator.Models.EstimateForming;
+using Estimator.Services;
 
 namespace Estimator.Factories;
 
@@ -50,9 +51,11 @@ public class TarifficatorModelFactory:ITarifficatorModelFactory
             Id = item.Id,
             SubCategoryName = item.SubcategoryId>0?await _tarifficatorService.GetCategoryNameByCategoryIdAsync(item.SubcategoryId):String.Empty,
             Measure = item.Measure,
+            MeasureString = EnumHelper.ConvertMeasureTypeToString(item.Measure),
             Name = item.Name,
             Price = item.Price,
             CurrencyType = item.CurrencyType,
+            CurrencyString = EnumHelper.ConvertCurrencyTypeToString(item.CurrencyType),
             ItemCode = item.ItemCode,
             TarificatorItemType = item.TarificatorItemType,
             TarifficatorType = item.TarifficatorType

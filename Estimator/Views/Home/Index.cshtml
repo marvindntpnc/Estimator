@@ -4,12 +4,23 @@
 <div id="loadingBlock" style="position: absolute;width: 100%;height: 100%; z-index: 9999;background-color: #ffffffcd;display: none; top: 0;left: 0;text-align: center">
     <img src="css/images/loading.gif" alt="loading" style="position: sticky;top: 45%">
 </div>
-<div class="text-center">
-    <input type="file" accept=".xlsx" id="tariffFile">
-    <input type="checkbox" id="isFul" onclick="switchTarifficatorType()">
-    <p id="tarifficatorType">ФУЛ</p>
-    <button class="btn btn-primary" type="button" id="downloadBtn">download</button>
+<div class="text-center mt-3 row justify-content-center">
+    <div class="col-md-4">
+        <input type="file" accept=".xlsx" id="tariffFile">
+    </div>
+    <div class="col-md-1">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="isFul" onclick="switchTarifficatorType()">
+            <label class="form-check-label" for="isFul" id="tarifficatorType">ФУЛ</label>
+        </div>
+    </div>
+    @* <input type="checkbox" id="isFul" onclick="switchTarifficatorType()"> *@
+    @* <p id="tarifficatorType">ФУЛ</p> *@
+</div>
+<div class="row">
+    <div class="col-md-4 offset-6 mt-5">
+        <button class="btn btn-primary" type="button" id="downloadBtn">Загрузить</button>
+    </div>
 </div>
 
-<a href="@Url.Action("EstimateForming")" class="btn btn-primary">Estimate Forming</a>
-<a href="@Url.Action("EstimateList")" class="btn btn-primary">Estimate List</a>
+

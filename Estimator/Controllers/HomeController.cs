@@ -58,8 +58,17 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> EstimateForming(EstimateFormingSearchModel searchModel)
     {
-        var model = await _tarifficatorModelFactory.PrepareEstimateFormingModelAsync(searchModel);
-        return Json(model);
+        var errors = new List<string>();
+        try
+        {
+            var model = await _tarifficatorModelFactory.PrepareEstimateFormingModelAsync(searchModel);
+            return Json(model);
+        }
+        catch (Exception e)
+        {
+            errors.Add(e.Message);
+            return Json(new {success = false, errors = errors});
+        }
     }
     public async Task<IActionResult> CreateEstimate(List<EstimateItemMinimizedModel> items, string title,string number,decimal currencyRate,string customerName, bool isDiscounts=false)
     {
@@ -167,24 +176,28 @@ public class HomeController : Controller
             worksheet.Cell("D4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell("D4").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             worksheet.Cell("D4").Style.Font.Bold = true;
+            worksheet.Range("D4", "D5").Merge();
             
             worksheet.Cell("E4").Value = "ед.изм.";
             worksheet.Cell("E4").Style.Alignment.WrapText = true;
             worksheet.Cell("E4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell("E4").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             worksheet.Cell("E4").Style.Font.Bold = true;
+            worksheet.Range("E4", "E5").Merge();
             
             worksheet.Cell("F4").Value = "цена  без НДС за ед.из.";
             worksheet.Cell("F4").Style.Alignment.WrapText = true;
             worksheet.Cell("F4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell("F4").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             worksheet.Cell("F4").Style.Font.Bold = true;
+            worksheet.Range("F4", "F5").Merge();
             
             worksheet.Cell("G4").Value = "стоимость, рублей без НДС";
             worksheet.Cell("G4").Style.Alignment.WrapText = true;
             worksheet.Cell("G4").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             worksheet.Cell("G4").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             worksheet.Cell("G4").Style.Font.Bold = true;
+            worksheet.Range("G4", "G5").Merge();
             
             worksheet.Range("B6", "C6").Merge();
             worksheet.Range("B6", "C6").Style.Alignment.WrapText = true;
@@ -525,6 +538,7 @@ public class HomeController : Controller
     {
         worksheet.Cell($"B{rowNumber}").Value = $"{fulMaterialsItem.TarifficatorItem.ItemCode}";
         worksheet.Cell($"C{rowNumber}").Value = $"{fulMaterialsItem.TarifficatorItem.Name}";
+        worksheet.Cell($"C{rowNumber}").Style.Alignment.WrapText = true;
         worksheet.Cell($"D{rowNumber}").Value = fulMaterialsItem.Qty;
         worksheet.Cell($"G{rowNumber}").Style.NumberFormat.Format = "# ### ##0.00";
         worksheet.Cell($"E{rowNumber}").Value = EnumHelper.ConvertMeasureTypeToString(fulMaterialsItem.TarifficatorItem.Measure);
@@ -536,6 +550,7 @@ public class HomeController : Controller
         worksheet.Cell($"G{rowNumber}").Style.NumberFormat.Format = "# ### ##0.00";
         worksheet.Row(rowNumber).Style.Alignment.Vertical=XLAlignmentVerticalValues.Center;
         worksheet.Range($"B{rowNumber}",$"G{rowNumber}").Style.Border.SetInsideBorder(XLBorderStyleValues.Thin);
+        worksheet.Range($"B{rowNumber}",$"G{rowNumber}").Style.Border.SetOutsideBorder(XLBorderStyleValues.Thin);
     }
 
     private decimal CalculateItemsTotalInRub(List<EstimateItemModel> items, decimal currencyRate)

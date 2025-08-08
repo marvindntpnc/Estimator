@@ -20,6 +20,7 @@
             }
         });
     })
+
     $('#CreateEstimate').click(function (){
         $(this).attr('disabled','disabled');
         if(estimateItems.length > 0){
@@ -55,7 +56,6 @@
 })
 
 var estimateItems=[];
-
 function switchTarifficatorType(){
     if($('#isFul').is(':checked')){
         $('#tarifficatorType').text('КТО');
@@ -81,7 +81,6 @@ function addItemToEstimate(element){
     element.parent().html(`<button class="btn btn-danger" type="button" value="${item.itemId}" data-type="${item.tarifficatorType}" id="${item.tarifficatorType}-${item.id}" onclick="removeItemFromEstimate($(this))">Удалить</button>`)
 }
 
-
 function getTarrifficatorItems(itemName,pageIndex, pageSize){
     const data={
         ItemName:itemName,
@@ -94,8 +93,11 @@ function getTarrifficatorItems(itemName,pageIndex, pageSize){
         cache: false,
         data: data,
         success: function(data){
-            for (let i=0; i<data.fulTarifficator.length; i++){
-                const item=data.fulTarifficator[i];
+            if(typeof(data.success)!="undefined" && !data.success){
+                return alert(data.errors);
+            }
+            for (let i = 0; i < data.fulTarifficator.length; i++) {
+                const item = data.fulTarifficator[i];
                 $('#ful-table-body').append(`<tr>
                                         <td>
                                                 <div class="form-check">
@@ -107,8 +109,8 @@ function getTarrifficatorItems(itemName,pageIndex, pageSize){
                                         <td>${item.subCategoryName}</td>
                                         <td>${item.name}</td>
                                         <td>${item.description}</td>
-                                        <td>${item.measure}</td>
-                                        <td>${item.currencyType}</td>
+                                        <td>${item.measureString}</td>
+                                        <td>${item.currencyString}</td>
                                         <td>${item.price}</td>
                                         <td><div class="form-check">
                                                         <input class="form form-control" type="number" min="0" value="1" id="estimateItemQty-${item.id}"/>
@@ -127,8 +129,8 @@ function getTarrifficatorItems(itemName,pageIndex, pageSize){
             //         </ul>
             // </nav>`)
 
-            for (let i=0; i<data.ktoTarifficator.length; i++){
-                const item=data.ktoTarifficator[i];
+            for (let i = 0; i < data.ktoTarifficator.length; i++) {
+                const item = data.ktoTarifficator[i];
                 $('#kto-table-body').append(`<tr>
                                 <td>
                                     <div class="form-check">

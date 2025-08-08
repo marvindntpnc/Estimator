@@ -1,59 +1,86 @@
 @model Estimator.Models.EstimateForming.EstimateFormingSearchModel
 
-<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#estimateModal" style="left: 75%; position: fixed">Создать смету</button>
-<div class="row">
-        <div class="col-md-5 offset-3">
-                <input type="text" asp-for="ItemName">
+<button type="button" class="btn btn-success mt-1" data-bs-toggle="modal" data-bs-target="#estimateModal" style="left: 85%; position: fixed">Создать смету</button>
+<form id="searchForm">
+        <div class="row mt-3">
+                <div class="col-md-5 offset-3">
+                        <input type="text" asp-for="ItemName" class="form form-control" id="ItemName">
+                </div>
+                <div class="col-md-auto btn btn-primary" type="submit" id="searchItemBtn">Найти</div>
         </div>
-        <div class="col-md-auto btn btn-primary" type="button" id="searchItemBtn">Найти</div>
-</div>
-<div id="ful-tarifficator-block">
-        <table class="table table-striped" id="ful">
-                <thead>
-                <tr>
-                        <th scope="col">Выбрать</th>
-                        <th scope="col">Номер позиции</th>
-                        <th scope="col">Раздел</th>
-                        <th scope="col">Подраздел</th>
-                        <th scope="col">Наименование позиции</th>
-                        <th scope="col">Примечание</th>
-                        <th scope="col">Единица измерения</th>
-                        <th scope="col">Валюта</th>
-                        <th scope="col">Цена</th>
-                        <th scope="col">Количество</th>
-                </tr>
-                </thead>
-                <tbody id="ful-table-body">
-                @*
+</form>
+
+<div class="accordion mt-5" id="tarifficatorsAccordion">
+        <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFul" aria-expanded="true" aria-controls="collapseFul">
+                                ФУЛ
+                        </button>
+                </h2>
+                <div id="collapseFul" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#tarifficatorsAccordion">
+                        <div class="accordion-body">
+                                <div id="ful-tarifficator-block">
+                                        <table class="table table-striped" id="ful">
+                                                <thead>
+                                                <tr>
+                                                        <th scope="col">Выбрать</th>
+                                                        <th scope="col">Номер позиции</th>
+                                                        <th scope="col">Раздел</th>
+                                                        <th scope="col">Подраздел</th>
+                                                        <th scope="col">Наименование позиции</th>
+                                                        <th scope="col">Примечание</th>
+                                                        <th scope="col">Единица измерения</th>
+                                                        <th scope="col">Валюта</th>
+                                                        <th scope="col">Цена</th>
+                                                        <th scope="col">Количество</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="ful-table-body">
+                                                @*
         Temporary desicion.
         TODO Add DataTabels ViewComponent and JS logic of table loading,search,update
         *@
 
-                </tbody>
-        </table>
-</div>
-<div id="kto-tarifficator-block">
-        <table class="table table-striped" id="kto">
-                <thead>
-                <tr>
-                        <th scope="col">Выбрать</th>
-                        <th scope="col">Номер позиции</th>
-                        <th scope="col">Раздел</th>
-                        <th scope="col">Подраздел</th>
-                        <th scope="col">Наименование позиции</th>
-                        <th scope="col">Примечание</th>
-                        <th scope="col">Скидка на объем</th>
-                        <th scope="col">Единица измерения</th>
-                        <th scope="col">Валюта</th>
-                        <th scope="col">Цена</th>
-                        <th scope="col">Количество</th>
-                </tr>
-                </thead>
-                <tbody id="kto-table-body">
-                </tbody>
-        </table>
-</div>
+                                                </tbody>
+                                        </table>
+                                </div>
+                        </div>
+                </div>
+        </div>
+        <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseKto" aria-expanded="false" aria-controls="collapseKto">
+                                КТО
+                        </button>
+                </h2>
+                <div id="collapseKto" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#tarifficatorsAccordion">
+                        <div class="accordion-body">
+                                <div id="kto-tarifficator-block">
+                                        <table class="table table-striped" id="kto">
+                                                <thead>
+                                                <tr>
+                                                        <th scope="col">Выбрать</th>
+                                                        <th scope="col">Номер позиции</th>
+                                                        <th scope="col">Раздел</th>
+                                                        <th scope="col">Подраздел</th>
+                                                        <th scope="col">Наименование позиции</th>
+                                                        <th scope="col">Примечание</th>
+                                                        <th scope="col">Скидка на объем</th>
+                                                        <th scope="col">Единица измерения</th>
+                                                        <th scope="col">Валюта</th>
+                                                        <th scope="col">Цена</th>
+                                                        <th scope="col">Количество</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="kto-table-body">
+                                                </tbody>
+                                        </table>
+                                </div>
+                        </div>
 
+                </div>
+        </div>
+</div>
 <div class="modal fade" id="estimateModal" tabindex="-1" aria-labelledby="estimateModalLabel" aria-hidden="true">
         <div class="modal-dialog">
                 <div class="modal-content">
@@ -62,11 +89,11 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                                <input type="text" id="EstimateTitle" class="form form-control" placeholder="Название объекта">
-                                <input type="text" id="EstimateNumber" class="form form-control" placeholder="Номер сметы">
-                                <input type="text" id="EstimateCustomerName" class="form form-control" placeholder="Назание заказчика">
-                                <input type="number" min="1" step="0.00001" id="EstimateCurrencyRate" class="form form-control" placeholder="Курс валюты">
-                                <div class="row">
+                                <input type="text" id="EstimateTitle" class="form form-control mt-1" placeholder="Название объекта">
+                                <input type="text" id="EstimateNumber" class="form form-control mt-1" placeholder="Номер сметы">
+                                <input type="text" id="EstimateCustomerName" class="form form-control mt-1 mb-1" placeholder="Назание заказчика">
+                                <input type="number" min="1" step="0.00001" id="EstimateCurrencyRate" class="form form-control mt-1" placeholder="Курс валюты">
+                                <div class="row mt-1">
                                         <div class="col-md-auto">
                                                 <input type="checkbox" id="EstimateIsDiscounts">
                                         </div>
@@ -74,7 +101,7 @@
                                                 <label>Процентовка</label>
                                         </div>
                                 </div>
-                                
+
                         </div>
                         <div class="modal-footer">
                                 <button type="button" id="CreateEstimate" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Создать</button>
@@ -95,5 +122,13 @@
                         $('#kto-table-body').html("")
                         getTarrifficatorItems($('#ItemName').val(),@Model.PageIndex,@Model.PageSize);
                 })
+                $('#searchForm').submit(function(event) {
+                        event.preventDefault(); // Предотвратить стандартное действие (отправку формы)
+                        $('#ful-table-body').html("")
+                        $('#kto-table-body').html("")
+                        const searchRequest=$('#ItemName').val()
+                        getTarrifficatorItems(searchRequest,@Model.PageIndex,@Model.PageSize);
+
+                });
         })
 </script>
