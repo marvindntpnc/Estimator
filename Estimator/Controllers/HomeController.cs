@@ -33,7 +33,7 @@ public class HomeController : Controller
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
     
-    public async Task<IActionResult> Download(IFormFile file,TarifficatorType tarifficatorType)
+    public async Task<IActionResult> UploadTarifficator(IFormFile file,TarifficatorType tarifficatorType)
     {
         var errors = new List<string>();
         try

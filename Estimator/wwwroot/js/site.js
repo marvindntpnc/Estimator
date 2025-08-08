@@ -6,7 +6,7 @@
         data.append('file',$('#tariffFile').prop('files')[0]);
         data.append('tarifficatorType',type);
         $.ajax({
-            url: '/Home/Download/',
+            url: '/Home/UploadTarifficator/',
             type: 'POST',
             cache: false,
             data: data,
