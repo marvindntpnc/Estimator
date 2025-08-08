@@ -3,34 +3,25 @@ using Estimator.Domain.Enums;
 using Estimator.Inerfaces;
 using Microsoft.AspNetCore.Mvc;
 using Estimator.Models;
+using Estimator.Models.EstimateForming;
 
 namespace Estimator.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
     private readonly ITarifficatorService _tarifficatorService;
+    private readonly ITarifficatorModelFactory _tarifficatorModelFactory;
 
-    public HomeController(ILogger<HomeController> logger, ITarifficatorService tarifficatorService)
+    public HomeController(ITarifficatorService tarifficatorService,
+        ITarifficatorModelFactory tarifficatorModelFactory)
     {
-        _logger = logger;
         _tarifficatorService = tarifficatorService;
+        _tarifficatorModelFactory = tarifficatorModelFactory;
     }
 
     public IActionResult Index()
     {
         return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
     
     public async Task<IActionResult> UploadTarifficator(IFormFile file,TarifficatorType tarifficatorType)
@@ -46,5 +37,16 @@ public class HomeController : Controller
             errors.Add(e.Message);
             return Json(new {success = false, errors = errors});
         }
+    }
+    public IActionResult EstimateForming()
+    {
+        return View(new EstimateFormingSearchModel());
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EstimateForming(EstimateFormingSearchModel searchModel)
+    {
+        var model = await _tarifficatorModelFactory.PrepareEstimateFormingModelAsync(searchModel);
+        return Json(model);
     }
 }

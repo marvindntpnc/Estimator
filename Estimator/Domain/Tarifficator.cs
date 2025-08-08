@@ -1,8 +1,9 @@
 using Estimator.Domain.Enums;
+using Estimator.Inerfaces;
 
 namespace Estimator.Domain;
 
-public class Tarifficator
+public class Tarifficator:IEntity
 {
     public int Id { get; set; }
     public TarifficatorType TarifficatorType{get;set;}

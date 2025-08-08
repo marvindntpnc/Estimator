@@ -1,10 +1,11 @@
 using Estimator.Data;
 using Estimator.Inerfaces;
+using Estimator.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Estimator.Services;
 
-public class RepositoryService<TEntity> : IRepository<TEntity> where TEntity : class
+public class RepositoryService<TEntity> : IRepository<TEntity> where TEntity : class,IEntity
 {
     private readonly ApplicationContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
@@ -42,4 +43,48 @@ public class RepositoryService<TEntity> : IRepository<TEntity> where TEntity : c
         _dbSet.Remove(entity);
         await _dbContext.SaveChangesAsync();
     }
+    public List<TEntity> GetWhereAsync(Func<TEntity, bool> predicate)
+    {
+        return _dbSet.Where(predicate).ToList();
+    }
+
+    public async Task<PagedList<TEntity>> GetPagedAsync(Func<TEntity, bool> predicate, int pageIndex, int pageSize)
+    {
+        var filteredQuery = _dbSet.Where(predicate);
+        int totalCount = filteredQuery.Count();
+        int skip = pageIndex * pageSize;
+        
+        var items = filteredQuery
+            .OrderBy(i => i.Id)
+            .Skip(skip)
+            .Take(pageSize)
+            .ToList();
+            
+        var pagedList = new PagedList<TEntity>
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            Items = items
+        };
+        return pagedList;
+    }
+
+    public PagedList<TEntity> ToPagedListAsync(List<TEntity> query,int pageIndex, int pageSize)
+    {
+        int totalCount = _dbSet.Count();
+        int skip = (pageIndex) * pageSize;
+        var items=query.OrderBy(i=>i.Id)
+            .Skip(skip)
+            .Take(pageSize).ToList();
+        var pagedList=new PagedList<TEntity>
+        {
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            Items = items
+        };
+        return pagedList;
+    }
+
 }

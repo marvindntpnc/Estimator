@@ -6,8 +6,10 @@
     <img src="css/images/loading.gif" alt="loading" style="position: sticky;top: 45%">
 </div>
 <div class="text-center">
-<input type="file" accept=".xlsx" id="tariffFile">
-<input type="checkbox" id="isFul" onclick="switchTarifficatorType()">
-<p id="tarifficatorType">ФУЛ</p>
-<button class="btn btn-primary" type="button" id="downloadBtn">download</button>
+    <input type="file" accept=".xlsx" id="tariffFile">
+    <input type="checkbox" id="isFul" onclick="switchTarifficatorType()">
+    <p id="tarifficatorType">ФУЛ</p>
+    <button class="btn btn-primary" type="button" id="downloadBtn">download</button>
 </div>
+
+<a href="@Url.Action("EstimateForming")" class="btn btn-primary">Estimate Forming</a>

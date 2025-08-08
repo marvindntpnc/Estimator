@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Estimator.Domain.Enums;
+using Estimator.Inerfaces;
 
 namespace Estimator.Domain;
 
-public class TarifficatorItem
+public class TarifficatorItem:IEntity
 {
     public int Id{get;set;}
     [ForeignKey("TariffFile")]

@@ -1,0 +1,67 @@
+@model Estimator.Models.EstimateForming.EstimateFormingSearchModel
+
+<div class="row">
+        <div class="col-md-5 offset-3">
+                <input type="text" asp-for="ItemName">
+        </div>
+        <div class="col-md-auto btn btn-primary" type="button" id="searchItemBtn">Найти</div>
+</div>
+<div id="ful-tarifficator-block">
+        <table class="table table-striped" id="ful">
+                <thead>
+                <tr>
+                        <th scope="col">Выбрать</th>
+                        <th scope="col">Номер позиции</th>
+                        <th scope="col">Раздел</th>
+                        <th scope="col">Подраздел</th>
+                        <th scope="col">Наименование позиции</th>
+                        <th scope="col">Примечание</th>
+                        <th scope="col">Единица измерения</th>
+                        <th scope="col">Валюта</th>
+                        <th scope="col">Цена</th>
+                </tr>
+                </thead>
+                <tbody id="ful-table-body">
+                @*
+        Temporary desicion.
+        TODO Add DataTabels ViewComponent and JS logic of table loading,search,update
+        *@
+
+                </tbody>
+        </table>
+</div>
+<div id="kto-tarifficator-block">
+        <table class="table table-striped" id="kto">
+                <thead>
+                <tr>
+                        <th scope="col">Выбрать</th>
+                        <th scope="col">Номер позиции</th>
+                        <th scope="col">Раздел</th>
+                        <th scope="col">Подраздел</th>
+                        <th scope="col">Наименование позиции</th>
+                        <th scope="col">Примечание</th>
+                        <th scope="col">Скидка на объем</th>
+                        <th scope="col">Единица измерения</th>
+                        <th scope="col">Валюта</th>
+                        <th scope="col">Цена</th>
+                </tr>
+                </thead>
+                <tbody id="kto-table-body">
+                </tbody>
+        </table>
+</div>
+<script>
+        $(document).ready(function () {
+                getTarrifficatorItems("",@Model.PageIndex,@Model.PageSize);
+                $('.page-link').each(function (){
+                        $(this).click(function (event){
+                                event.preventDefault()
+                        })
+                })
+                $('#searchItemBtn').click(function (){
+                        $('#ful-table-body').html("")
+                        $('#kto-table-body').html("")
+                        getTarrifficatorItems($('#ItemName').val(),@Model.PageIndex,@Model.PageSize);
+                })
+        })
+</script>
