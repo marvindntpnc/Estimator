@@ -1,5 +1,6 @@
 @model Estimator.Models.EstimateForming.EstimateFormingSearchModel
 
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#estimateModal" style="left: 75%; position: fixed">Создать смету</button>
 <div class="row">
         <div class="col-md-5 offset-3">
                 <input type="text" asp-for="ItemName">
@@ -19,6 +20,7 @@
                         <th scope="col">Единица измерения</th>
                         <th scope="col">Валюта</th>
                         <th scope="col">Цена</th>
+                        <th scope="col">Количество</th>
                 </tr>
                 </thead>
                 <tbody id="ful-table-body">
@@ -44,11 +46,41 @@
                         <th scope="col">Единица измерения</th>
                         <th scope="col">Валюта</th>
                         <th scope="col">Цена</th>
+                        <th scope="col">Количество</th>
                 </tr>
                 </thead>
                 <tbody id="kto-table-body">
                 </tbody>
         </table>
+</div>
+
+<div class="modal fade" id="estimateModal" tabindex="-1" aria-labelledby="estimateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+                <div class="modal-content">
+                        <div class="modal-header">
+                                <h5 class="modal-title">Введите данные сметы</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                                <input type="text" id="EstimateTitle" class="form form-control" placeholder="Название объекта">
+                                <input type="text" id="EstimateNumber" class="form form-control" placeholder="Номер сметы">
+                                <input type="text" id="EstimateCustomerName" class="form form-control" placeholder="Назание заказчика">
+                                <input type="number" min="1" step="0.00001" id="EstimateCurrencyRate" class="form form-control" placeholder="Курс валюты">
+                                <div class="row">
+                                        <div class="col-md-auto">
+                                                <input type="checkbox" id="EstimateIsDiscounts">
+                                        </div>
+                                        <div class="col-md-auto">
+                                                <label>Процентовка</label>
+                                        </div>
+                                </div>
+                                
+                        </div>
+                        <div class="modal-footer">
+                                <button type="button" id="CreateEstimate" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Создать</button>
+                        </div>
+                </div>
+        </div>
 </div>
 <script>
         $(document).ready(function () {

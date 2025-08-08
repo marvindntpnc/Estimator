@@ -11,4 +11,5 @@ public interface ITarifficatorService
     Task<PagedList<TarifficatorItem>> GetTarifficatorItemsAsync(EstimateFormingSearchModel searchModel,
         TarifficatorType tarifficatorType);
     Task<string?> GetCategoryNameByCategoryIdAsync(int categoryId);
+    Category? GetCategoryByName(string categoryName);
 }

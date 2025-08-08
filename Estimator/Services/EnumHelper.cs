@@ -107,4 +107,17 @@ public static class EnumHelper
                 
         }
     }
+    public static TarifficatorType? ConvertTarifficatorTypeFromString(string tarifficatorType)
+    {
+        switch (tarifficatorType)
+        {
+            case "ful":
+                return TarifficatorType.FUL;
+            case "kto":
+                return TarifficatorType.KTO;
+            default:
+                return null;
+                
+        }
+    }
 }

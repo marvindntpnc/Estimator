@@ -38,7 +38,7 @@ public class TarifficatorModelFactory:ITarifficatorModelFactory
         return model;
     }
 
-    private async Task<TarrificatorItemModel> PrepareTarifficatorItemModel(TarifficatorItem item)
+    public async Task<TarrificatorItemModel> PrepareTarifficatorItemModel(TarifficatorItem item)
     {
         var model = new TarrificatorItemModel
         {
@@ -52,11 +52,10 @@ public class TarifficatorModelFactory:ITarifficatorModelFactory
             Measure = item.Measure,
             Name = item.Name,
             Price = item.Price,
-            Tarifficator = null,
             CurrencyType = item.CurrencyType,
             ItemCode = item.ItemCode,
-            TarificatorId =item.TarificatorId,
-            TarificatorItemType = item.TarificatorItemType
+            TarificatorItemType = item.TarificatorItemType,
+            TarifficatorType = item.TarifficatorType
         };
         
         return model;

@@ -1,0 +1,18 @@
+@using Estimator.Models.Estimate
+@model List<EstimateModel>
+
+<div class="row">
+    <div class="col-md-4">Объект</div>
+    <div class="col-md-1">Дата</div>
+    <div class="col-md-1">Печать</div>
+</div>
+@{
+    foreach (var item in Model)
+    {
+        <div class="row">
+            <div class="col-md-4">@item.Name</div>
+            <div class="col-md-1">@item.Date.ToString("dd.MM.yyyy")</div>
+            <div class="col-md-1"><a asp-action="DownloadEstimate" asp-route-id="@item.Id" class="btn btn-success">Печать</a></div>
+        </div>
+    }
+}

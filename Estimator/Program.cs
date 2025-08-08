@@ -13,6 +13,9 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServe
 builder.Services.AddScoped(typeof(IRepository<>), typeof(RepositoryService<>));
 builder.Services.AddScoped(typeof(ITarifficatorService), typeof(TarifficatorService));
 builder.Services.AddScoped(typeof(ITarifficatorModelFactory), typeof(TarifficatorModelFactory));
+builder.Services.AddScoped(typeof(IEstimateService), typeof(EstimateService));
+builder.Services.AddScoped(typeof(IEstimateModelFactory), typeof(EstimateModelFactory));
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -10,19 +10,13 @@ public class ApplicationContext:DbContext
     {
         
     }
-    public DbSet<Tarifficator> Tarifficators { get; set; } = null!;
     public DbSet<TarifficatorItem> TarifficatorItems { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Estimate> Estimates { get; set; } = null!;
+    public DbSet<EstimateItem> EstimateItems { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Настройка связи 1 ко многим между TariffFile и TariffItem
-        modelBuilder.Entity<Tarifficator>()
-            .HasMany(tf => tf.TarifficatorItems)
-            .WithOne(ti => ti.Tarifficator)
-            .HasForeignKey(ti => ti.TarificatorId)
-            .OnDelete(DeleteBehavior.Cascade); // Каскадное удаление
-
         // Настройка индексов
         modelBuilder.Entity<TarifficatorItem>()
             .HasIndex(ti => ti.ItemCode)
@@ -30,6 +24,13 @@ public class ApplicationContext:DbContext
         
         modelBuilder.Entity<TarifficatorItem>()
             .HasIndex(ti => ti.Name);
+        
+        // Estimate — EstimateItem: каскадное удаление
+        modelBuilder.Entity<Estimate>()
+            .HasMany(e => e.EstimateItems)
+            .WithOne(ei => ei.Estimate)
+            .HasForeignKey(ei => ei.EstimateId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
     
     

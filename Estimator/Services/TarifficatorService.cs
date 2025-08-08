@@ -11,15 +11,13 @@ namespace Estimator.Services;
 
 public class TarifficatorService: ITarifficatorService
 {
-    private readonly IRepository<Tarifficator> _tarifficatorRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly IRepository<TarifficatorItem> _tarifficatorItemRepository;
 
     public TarifficatorService(
-        IRepository<Tarifficator> tarifficatorRepository,
-        IRepository<Category> categoryRepository, IRepository<TarifficatorItem> tarifficatorItemRepository)
+        IRepository<Category> categoryRepository,
+        IRepository<TarifficatorItem> tarifficatorItemRepository)
     {
-        _tarifficatorRepository = tarifficatorRepository;
         _categoryRepository = categoryRepository;
         _tarifficatorItemRepository = tarifficatorItemRepository;
     }
@@ -30,21 +28,6 @@ public class TarifficatorService: ITarifficatorService
         await file.CopyToAsync(stream);
     
         using var workbook = new XLWorkbook(stream);
-        
-        // Оптимизированный поиск активного тарификатора
-        var activeTarifficators = _tarifficatorRepository.GetWhereAsync(t => t.IsActive && t.TarifficatorType == tarifficatorType);
-        var activeTarifficator = activeTarifficators.FirstOrDefault();
-        if (activeTarifficator != null)
-            await _tarifficatorRepository.DeleteAsync(activeTarifficator);
-            
-        var tarificator=new Tarifficator
-        {
-            TarifficatorItems = new List<TarifficatorItem>(),
-            TarifficatorType = tarifficatorType,
-            CreatedOn = DateTime.Now,
-            IsActive = true
-        };
-        await _tarifficatorRepository.AddAsync(tarificator);
         
         // Кэшируем категории для оптимизации производительности
         var allCategories = await _categoryRepository.GetAllAsync();
@@ -68,8 +51,7 @@ public class TarifficatorService: ITarifficatorService
                             Description = row.Cell("E").Value.ToString().Trim(),
                             TarificatorItemType = TarificatorItemType.Material,
                             Price = decimal.Parse(priceString,  NumberStyles.Any, CultureInfo.InvariantCulture),
-                            TarificatorId = tarificator.Id,
-                            Tarifficator = tarificator,
+                            TarifficatorType = tarifficatorType,
                             Discount = string.Empty,
                         };
                         item.Measure = EnumHelper.ConvertMeasureTypeString(row.Cell("F").Value.ToString().Trim());
@@ -107,8 +89,7 @@ public class TarifficatorService: ITarifficatorService
                             Description = row.Cell("D").Value.ToString().Trim(),
                             TarificatorItemType = TarificatorItemType.Service,
                             Price = decimal.Parse(priceString,  NumberStyles.Any, CultureInfo.InvariantCulture),
-                            TarificatorId = tarificator.Id,
-                            Tarifficator = tarificator,
+                            TarifficatorType = tarifficatorType,
                             Discount = string.Empty,
                         };
                         item.Measure = EnumHelper.ConvertMeasureTypeString(row.Cell("E").Value.ToString().Trim());
@@ -126,7 +107,7 @@ public class TarifficatorService: ITarifficatorService
                 }
                 break;
                 
-            default:
+            case TarifficatorType.KTO:
                 var worksheet = workbook.Worksheet(1);
                 foreach (var row in worksheet.RowsUsed())
                 {
@@ -141,8 +122,7 @@ public class TarifficatorService: ITarifficatorService
                             Description = row.Cell("E").Value.ToString().Trim(),
                             TarificatorItemType = TarificatorItemType.KtoItem,
                             Price = decimal.Parse(priceString,  NumberStyles.Any, CultureInfo.InvariantCulture),
-                            TarificatorId = tarificator.Id,
-                            Tarifficator = tarificator,
+                            TarifficatorType = tarifficatorType,
                             Discount = row.Cell("F").Value.ToString().Trim(),
                         };
                         item.Measure = EnumHelper.ConvertMeasureTypeString(row.Cell("G").Value.ToString().Trim());
@@ -165,29 +145,27 @@ public class TarifficatorService: ITarifficatorService
                     }
                 }
                 break;
+            default:
+                Console.WriteLine("Tarifficator Type is not supported");
+                break;
         }
     }
 
     public async Task<PagedList<TarifficatorItem>> GetTarifficatorItemsAsync(EstimateFormingSearchModel searchModel,
         TarifficatorType tarifficatorType)
     {
-        var tarifficators = _tarifficatorRepository.GetWhereAsync(t => t.TarifficatorType == tarifficatorType);
-        var tarifficator = tarifficators.FirstOrDefault(t => t.IsActive);
         
-        if (tarifficator != null)
-        {
             if (searchModel.ItemName.IsNullOrEmpty())
             {
                 return await _tarifficatorItemRepository.GetPagedAsync(
-                    ti => ti.TarificatorId == tarifficator.Id, 
+                    ti => ti.TarifficatorType == tarifficatorType, 
                     searchModel.PageIndex, 
                     searchModel.PageSize);
             }
             return await _tarifficatorItemRepository.GetPagedAsync(
-                ti => ti.TarificatorId == tarifficator.Id && ti.Name.ToLower().Contains(searchModel.ItemName.ToLower()), 
+                ti => ti.TarifficatorType == tarifficatorType && ti.Name.ToLower().Contains(searchModel.ItemName.ToLower()), 
                 searchModel.PageIndex, 
                 searchModel.PageSize);
-        }
         
         return new PagedList<TarifficatorItem>();
     }
@@ -195,6 +173,11 @@ public class TarifficatorService: ITarifficatorService
     public async Task<string?> GetCategoryNameByCategoryIdAsync(int categoryId)
     {
         return (await _categoryRepository.GetByIdAsync(categoryId))?.Name;
+    }
+    
+    public Category? GetCategoryByName(string categoryName)
+    {
+        return _categoryRepository.GetWhereAsync(c=>c.Name.ToLower().Contains(categoryName.ToLower())).FirstOrDefault();
     }
     
     private async Task<Category> GetOrCreateCategoryAsync(string categoryName, Dictionary<string, Category> categoryCache)
