@@ -1,0 +1,217 @@
+@model Estimator.Models.Facility.CreateOrUpdateFacilityModel
+@{
+    ViewData["Title"] = "Добавить/Изменить";
+}
+<h1 class="m-3">
+    Добавить/Изменить объект
+</h1>
+<div class="card">
+    <div class="card-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="card-title">
+            Информация об объекте
+        </h3>
+        <a href="@Url.Action("RemoveFacility", "Facility", new { id = Model.Id })" class="btn btn-danger"><i
+                class="bi bi-trash"></i>Удалить</a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2">
+                <strong>Название объекта</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="FacilityName" class="form form-control" id="FacilityName" style="margin-right: 0.5rem"> *
+                </div>
+
+            </div>
+            <div class="col-md-3">
+                <strong>Номер текущего договра</strong>
+                <div class="d-flex">
+                    <select asp-for="ActiveContractId" class="form form-select" id="ActiveContractId" style="margin-right: 0.5rem">
+                        @{
+                            foreach (var facility in Model.ContractList)
+                            {
+                                <option value="@facility.Value">@facility.Text</option>
+                            }
+                        }
+                    </select> *
+                </div>
+                <div class="mt-2">
+                    <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContractModal">
+                        <i class="bi bi-plus"></i>Добавить
+                    </div>
+                    <div class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addContractModal" onclick="editContract()"> 
+                        <i class="bi bi-pencil"></i>Изменить
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <strong>Стоимость услуги</strong>
+                <div class="d-flex">
+                <input type="number" min="1" step="0.01" asp-for="HourPrice" class="form form-control"
+                       placeholder="Стоимость услуги" id="HourPrice" style="margin-right: 0.5rem"> *
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h4>Процентовка</h4>
+            @if (Model.DiscountRequirements.Count > 0)
+            {
+                <strong>Общая сумма сметы:</strong>
+                @foreach (var discountRequirement in Model.DiscountRequirements)
+                {
+                    <div style="display: flex"><strong
+                            style="margin-left: 1rem; font-size: 1.5rem">от @discountRequirement.StartRange до @discountRequirement.EndRange: </strong>
+                        <div class="m-2 d-flex">
+                            <p class="m-0">Монтаж: </p>
+                            <p class="m-0">@discountRequirement.InstallRate %</p>
+                        </div>
+                        <div class="m-2 d-flex">
+                            <p class="m-0">Демонтаж: </p>
+                            <p class="m-0">@discountRequirement.UninstallRate %</p>
+                        </div>
+                        <div class="m-2 d-flex">
+                            <p class="m-0">Расходные материалы: </p>
+                            <p class="m-0">@discountRequirement.SuppliesRate %</p>
+                        </div>
+                        <div class="m-2 d-flex">
+                            <a href="@Url.Action("RemoveFacilityDiscount","Facility",new { id = discountRequirement.Id, facilityId=Model.Id })" class="link-style-btn m-0">
+                                Удалить</a>
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="row">
+                <div class="col-md-2 offset-2">
+                    <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDiscountRequirementModal">
+                        <i class="bi bi-plus"></i>Добавить
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <h4>Адрес</h4>
+            <div class="col-md-3">
+                <strong>Область</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="StateName" class="form form-control" id="StateName" style="margin-right: 0.5rem"> *
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Район</strong>
+                <input type="text" asp-for="AreaName" class="form form-control" id="AreaName">
+            </div>
+            <div class="col-md-3">
+                <strong>Город</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="CityName" class="form form-control" id="CityName" style="margin-right: 0.5rem"> *
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Адрес объекта</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="FacilityAddress" class="form form-control" id="FacilityAddress" style="margin-right: 0.5rem"> *
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Дом</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="HouseNumber" class="form form-control" id="HouseNumber" style="margin-right: 0.5rem"> *
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Корпус</strong>
+                <input type="text" asp-for="EnclosureNumber" class="form form-control" id="EnclosureNumber">
+            </div>
+            <div class="col-md-3">
+                <strong>Строение</strong>
+                <input type="text" asp-for="BuildingNumber" class="form form-control" id="BuildingNumber">
+            </div>
+        </div>
+        <div class="row m-5">
+            <div class="col-md-2 offset-3">
+                <div class="btn btn-primary" data-facility-id="@Model.Id" id="saveFacilityInfo"><i class="bi bi-floppy"></i>Сохранить</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addContractModal" tabindex="-1" aria-labelledby="addContractModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 85%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить договор</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="m-1 form form-control" placeholder="Номер договора"
+                               id="addContractNumber">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="m-1 form form-control" placeholder="Дата договора"
+                               id="addContractDate">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="btn btn-primary" id="saveNewContractBtn" data-facility-id="@Model.Id" data-contract-id="0" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="bi bi-floppy"></i>Сохранить
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addDiscountRequirementModal" tabindex="-1" aria-labelledby="estimateItemsModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="min-width: 85%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить диапазон процентовки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Сумма сметы от:</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Сумма сметы до:</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Демонтаж:</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Монтаж:</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <strong>Расходные материалы:</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" min="0" class="m-1 form form-control"
+                               id="addDiscountStartRate">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" min="0" class="m-1 form form-control" id="addDiscountEndRate">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" min="0" class="m-1 form form-control" id="addUninstallRate">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" min="0" class="m-1 form form-control" id="addInstallRate">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" step="0.01" min="0" class="m-1 form form-control" id="addSuppliesRate">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="btn btn-primary" id="saveNewDiscountBtn" data-facility-id="@Model.Id" data-bs-dismiss="modal" aria-label="Close">
+                            <i class="bi bi-floppy"></i>Сохранить
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

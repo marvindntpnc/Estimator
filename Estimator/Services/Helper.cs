@@ -6,6 +6,7 @@ public static class Helper
 {
     public static string FormatPrice(decimal price)
     {
-        return price.ToString(CultureInfo.InvariantCulture).Replace(".", ",");
+        var result = price.ToString("C",new CultureInfo("ru-RU"));
+        return $"{result}";
     }
 }

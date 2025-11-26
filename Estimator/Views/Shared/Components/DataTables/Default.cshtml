@@ -1,0 +1,234 @@
+@using System.Web
+@using Newtonsoft.Json
+@model Estimator.Models.Shared.DataTables.DataTableModel
+
+<table id="@Model.Name" class="table table-bordered table-hover" width="100%">
+    <thead>
+        <tr>
+            @foreach (var column in Model.Columns)
+            {
+                <th>@column.Title</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Данные будут загружены через AJAX -->
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        var config = {
+            "processing": @Model.Processing.ToString().ToLower(),
+            "serverSide": @Model.ServerSide.ToString().ToLower(),
+            "ordering": @Model.Ordering.ToString().ToLower(),
+            // Always hide built-in search input, we control filtering via SearchFieldNames
+            "searching": false,
+            "ajax": {
+                "url": "@Model.Url",
+                "type": "POST",
+                "data": function (d) {
+                    // If Searching is enabled in model, send only whitelisted fields
+                    var searchingEnabled = @Model.Searching.ToString().ToLower();
+                    if (searchingEnabled) {
+                        var fieldNames = @Html.Raw(JsonConvert.SerializeObject(Model.SearchFieldNames));
+                        if (Array.isArray(fieldNames)) {
+                            fieldNames.forEach(function(name) {
+                                var $elements = $('[name="' + name + '"]');
+                                if ($elements && $elements.length) {
+                                    if ($elements.length > 1) {
+                                        // Обработка для элементов с несколькими инпутами (например, checkbox + hidden input)
+                                        var values = [];
+                                        var $checkboxes = $elements.filter(':checkbox');
+                                        var $radios = $elements.filter(':radio');
+                                        var $regular = $elements.not(':checkbox').not(':radio').not('input[type="hidden"]');
+                                        
+                                        if ($checkboxes.length > 0) {
+                                            // Для чекбоксов отправляем булево значение (игнорируя hidden input)
+                                            // Ищем только отмеченные чекбоксы
+                                            var hasChecked = $checkboxes.filter(':checked').length > 0;
+                                            // Отправляем просто булево значение, а не массив
+                                            d[name] = hasChecked;
+                                        } else if ($radios.length > 0) {
+                                            $radios.each(function() {
+                                                var $el = $(this);
+                                                if ($el.is(':checked')) {
+                                                    values.push($el.val());
+                                                }
+                                            });
+                                            if (values.length) d[name] = values;
+                                        } else if ($regular.length > 0) {
+                                            $regular.each(function() {
+                                                values.push($(this).val());
+                                            });
+                                            if (values.length) d[name] = values;
+                                        }
+                                    } else {
+                                        var $el = $elements.first();
+                                        if ($el.is('select[multiple]')) {
+                                            var multi = $el.val();
+                                            if (multi && multi.length) d[name] = multi;
+                                        } else if ($el.is(':checkbox')) {
+                                            // Всегда отправляем значение для чекбокса: true если отмечен, false если нет
+                                            d[name] = $el.is(':checked');
+                                        } else if ($el.is(':radio')) {
+                                            var checked = $('[name="' + name + '"]:checked');
+                                            if (checked && checked.length) d[name] = checked.val();
+                                        } else {
+                                            var val = $el.val();
+                                            if (val !== undefined && val !== null && val !== '') d[name] = val;
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            },
+            "columns": [
+                @foreach (var column in Model.Columns)
+                {
+                    <text>
+                    {
+                        "data": "@column.Data",
+                        "name": "@column.Data",
+                        "orderable": @column.Orderable.ToString().ToLower(),
+                        "searchable": @column.Searchable.ToString().ToLower(),
+                        @if (!string.IsNullOrEmpty(column.Width))
+                        {
+                            <text>"width": "@column.Width",</text>
+                        }
+                        @if (!string.IsNullOrEmpty(column.ClassName))
+                        {
+                            <text>"className": "@column.ClassName",</text>
+                        }
+                        @if (!string.IsNullOrEmpty(column.Render))
+                        {
+                            <text>"render": function (data, type, row, meta) { var fn = window['@column.Render']; if (typeof fn === 'function') { return fn(data, type,row, meta); } return data; },</text>
+                        }
+                    },
+                    </text>
+                }
+            ],
+            "order": [@Html.Raw(string.Join(",", Model.Order))],
+            // Force DOM without built-in search input 'f'
+            "dom": "@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.Dom.Replace("f", string.Empty)))",
+            "lengthMenu": [10, 25, 50, 100],
+            "pageLength": @Model.Length,
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/ru.json"
+            }
+        };
+
+        @if (Model.Buttons.Any())
+        {
+            <text>
+            config.buttons = [
+                @foreach (var button in Model.Buttons)
+                {
+                    <text>
+                    {
+                        text: '@button.Text',
+                        className: '@button.ClassName',
+                        action: function(e, dt, node, config) {
+                            @if (!string.IsNullOrEmpty(button.Action))
+                            {
+                                <text>@Html.Raw(button.Action)</text>
+                            }
+                        }
+                    },
+                    </text>
+                }
+            ];
+            // Buttons DOM also without 'f'
+            config.dom = "@HttpUtility.JavaScriptStringEncode(@"<""row""<""col-md-6""l><""col-md-6"">><""row""<""col-md-12""tr>><""row""<""col-md-5""i><""col-md-7""pB>>")";;
+            </text>
+        }
+
+        @foreach (var param in Model.AdditionalParameters)
+        {
+            <text>config.@param.Key = @Html.Raw(JsonConvert.SerializeObject(param.Value));</text>
+        }
+
+        var tableInstance = $('#@Model.Name').DataTable(config);
+
+        // Bind external search trigger button if provided (similar to NopCommerce approach)
+        @if (!string.IsNullOrEmpty(Model.SearchButtonId))
+        {
+            <text>
+            var $searchBtn = $('#@Model.SearchButtonId');
+            if ($searchBtn && $searchBtn.length) {
+                $searchBtn.off('click.dtSearch').on('click.dtSearch', function(e) {
+                    e.preventDefault();
+                    tableInstance.ajax.reload();
+                });
+            }
+            </text>
+        }
+    });
+    
+    function refreshActiveDataTables(tableId) {
+        const $table = $(tableId);
+        if ($table.length === 0) return;
+        if (!$.fn.DataTable || !$.fn.DataTable.isDataTable($table)) return;
+
+        const dt = $table.DataTable();
+
+        // Найдём wrapper конкретной таблицы
+        const wrapper = document.querySelector(`${tableId}_wrapper`) || document.getElementById(`${tableId.replace('#','')}_wrapper`);
+        let currentPage = null;
+
+        if (wrapper) {
+            const activeLi = wrapper.querySelector('ul.pagination li.paginate_button.page-item.active');
+            if (activeLi) {
+                const dtIdx = activeLi.getAttribute('data-dt-idx');
+                if (dtIdx && !isNaN(Number(dtIdx))) {
+                    const n = Number(dtIdx);
+                    // data-dt-idx у DataTables может включать служебные значения (prev/next),
+                    // поэтому если это цифра — используем как 1-базную страницу
+                    currentPage = n > 0 ? n - 1 : null;
+                }
+                if (currentPage === null) {
+                    const txt = (activeLi.textContent || '').trim();
+                    const num = parseInt(txt, 10);
+                    if (!isNaN(num)) currentPage = Math.max(0, num - 1);
+                }
+            }
+        }
+
+        // Фолбэк через API
+        if (currentPage === null) {
+            try {
+                currentPage = dt.page && typeof dt.page === 'function' ? dt.page() : null;
+            } catch (_) { /* no-op */ }
+        }
+
+        // Сохраним порядок/поиск для надёжности
+        let order = null;
+        let search = null;
+        try {
+            order = dt.order();
+            search = dt.search();
+        } catch (_) { /* no-op */ }
+
+        const restoreState = () => {
+            try {
+                if (order) dt.order(order);
+                if (typeof search === 'string') dt.search(search);
+                if (currentPage !== null && !isNaN(currentPage)) dt.page(currentPage);
+                dt.draw(false);
+            } catch (_) { /* no-op */ }
+        };
+
+        // ajax/serverSide автоматически сохраняет состояние при false
+        if (dt.ajax && dt.ajax.reload) {
+            dt.ajax.reload(function() {
+                // На случай, если провайдер сбросил состояние
+                restoreState();
+            }, false);
+        } else {
+            // Клиентский источник данных
+            restoreState();
+        }
+    }
+</script>

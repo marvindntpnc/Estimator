@@ -1,133 +1,285 @@
+@using Estimator.Domain.Enums
+@using Estimator.Models.Shared.DataTables
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Estimator.Models.EstimateForming.EstimateFormingSearchModel
-
-<button type="button" class="btn btn-success mt-1" data-bs-toggle="modal" data-bs-target="#estimateModal" style="left: 85%; position: fixed">Создать смету</button>
 <form id="searchForm">
         <div class="row mt-3">
-                <div class="col-md-5 offset-3">
-                        <input type="text" asp-for="ItemName" class="form form-control" id="ItemName">
+                <div class="col-md-1">
+                        <input type="text" asp-for="ItemCode" class="form form-control" placeholder="Код" id="ItemCode">
                 </div>
-                <div class="col-md-auto btn btn-primary" type="submit" id="searchItemBtn">Найти</div>
+                <div class="col-md-2">
+                        <input type="text" asp-for="ItemName" class="form form-control" placeholder="Наименование позиции" id="ItemName">
+                </div>
+                <div class="col-md-2">
+                        <select asp-for="CategoryId" class="form form-select" id="CategoryId">
+                                @{
+                                        foreach (var category in Model.AvailableCategories)
+                                        {
+                                                <option value="@category.Value">@category.Text</option>
+                                        }
+                                }
+                        </select>
+                </div>
+                <div class="col-md-2">
+                        <select asp-for="ItemTypeId" class="form form-select" id="ItemTypeId">
+                                @{
+                                        foreach (var itemType in Model.AvailableItemTypes)
+                                        {
+                                                <option value="@itemType.Value">@itemType.Text</option>
+                                        }
+                                }
+                        </select>
+                </div>
+                <div class="row m-3">
+                        <div class="col-md-4 offset-4">
+                                <button class="btn btn-primary" type="submit" id="searchItemBtn">Найти</button>
+                        </div>
+                </div>
+
+
         </div>
 </form>
 
-<div class="accordion mt-5" id="tarifficatorsAccordion">
+<div class="accordion" id="accordionExample">
         <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFul" aria-expanded="true" aria-controls="collapseFul">
+                <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                 ФУЛ
                         </button>
                 </h2>
-                <div id="collapseFul" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#tarifficatorsAccordion">
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                         <div class="accordion-body">
-                                <div id="ful-tarifficator-block">
-                                        <table class="table table-striped" id="ful">
-                                                <thead>
-                                                <tr>
-                                                        <th scope="col">Выбрать</th>
-                                                        <th scope="col">Номер позиции</th>
-                                                        <th scope="col">Раздел</th>
-                                                        <th scope="col">Подраздел</th>
-                                                        <th scope="col">Наименование позиции</th>
-                                                        <th scope="col">Примечание</th>
-                                                        <th scope="col">Единица измерения</th>
-                                                        <th scope="col">Валюта</th>
-                                                        <th scope="col">Цена</th>
-                                                        <th scope="col">Количество</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="ful-table-body">
-                                                @*
-        Temporary desicion.
-        TODO Add DataTabels ViewComponent and JS logic of table loading,search,update
-        *@
-
-                                                </tbody>
-                                        </table>
-                                </div>
+                                @await Component.InvokeAsync("DataTable", new DataTableModel
+                                {
+                                        Name = "ful-table",
+                                        Url = Url.Action("EstimateForming", "Home", new { tarifficatorType = TarifficatorType.FUL }),
+                                        Length = Model.PageSize,
+                                        SearchButtonId = "searchItemBtn",
+                                        Searching = true,
+                                        SearchFieldNames = new List<string>
+                                        {
+                                                nameof(Model.ItemName),
+                                                nameof(Model.CategoryId),
+                                                nameof(Model.SubCategoryId),
+                                                nameof(Model.CurrencyId),
+                                                nameof(Model.MeasureTypeId),
+                                                nameof(Model.ItemCode),
+                                                nameof(Model.ItemTypeId),
+                                        },
+                                        Columns = new List<ColumnDefinition>
+                                        {
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "№",
+                                                        Data = nameof(TarrificatorItemModel.ItemCode)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Раздел",
+                                                        Data = nameof(TarrificatorItemModel.CategoryName)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Подраздел",
+                                                        Data = nameof(TarrificatorItemModel.SubCategoryName)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Наименование",
+                                                        Data = nameof(TarrificatorItemModel.Name)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Примечание",
+                                                        Data = nameof(TarrificatorItemModel.Description)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Ед. изм.",
+                                                        Data = nameof(TarrificatorItemModel.MeasureString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Тип",
+                                                        Data = nameof(TarrificatorItemModel.TarificatorItemTypeString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Вал.",
+                                                        Data = nameof(TarrificatorItemModel.CurrencyString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Цена",
+                                                        Data = nameof(TarrificatorItemModel.Price)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Количество",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderQtyInput",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Модификатор (длинна в метрах)",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderCustomRateInput",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Выбрать",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderAddItemToEstimateButton",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Изменить",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderEditItemButton",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                        }
+                                })
                         </div>
                 </div>
         </div>
         <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseKto" aria-expanded="false" aria-controls="collapseKto">
+                <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                                 КТО
                         </button>
                 </h2>
-                <div id="collapseKto" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#tarifficatorsAccordion">
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
                         <div class="accordion-body">
-                                <div id="kto-tarifficator-block">
-                                        <table class="table table-striped" id="kto">
-                                                <thead>
-                                                <tr>
-                                                        <th scope="col">Выбрать</th>
-                                                        <th scope="col">Номер позиции</th>
-                                                        <th scope="col">Раздел</th>
-                                                        <th scope="col">Подраздел</th>
-                                                        <th scope="col">Наименование позиции</th>
-                                                        <th scope="col">Примечание</th>
-                                                        <th scope="col">Скидка на объем</th>
-                                                        <th scope="col">Единица измерения</th>
-                                                        <th scope="col">Валюта</th>
-                                                        <th scope="col">Цена</th>
-                                                        <th scope="col">Количество</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="kto-table-body">
-                                                </tbody>
-                                        </table>
-                                </div>
-                        </div>
+                                @await Component.InvokeAsync("DataTable", new DataTableModel
+                                {
+                                        Name = "kto-table",
+                                        Url = Url.Action("EstimateForming","Home",new{tarifficatorType=TarifficatorType.KTO}),
+                                        Length = Model.PageSize,
+                                        SearchButtonId="searchItemBtn",
+                                        Searching = true,
+                                        SearchFieldNames = new List<string>
+                                        {
+                                                nameof(Model.ItemName),
+                                                nameof(Model.CategoryId),
+                                                nameof(Model.SubCategoryId),
+                                                nameof(Model.CurrencyId),
+                                                nameof(Model.MeasureTypeId),
+                                                nameof(Model.ItemCode),
+                                                nameof(Model.ItemTypeId)
+                                        },
+                                        Columns = new List<ColumnDefinition>
+                                        {
 
-                </div>
-        </div>
-</div>
-<div class="modal fade" id="estimateModal" tabindex="-1" aria-labelledby="estimateModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-                <div class="modal-content">
-                        <div class="modal-header">
-                                <h5 class="modal-title">Введите данные сметы</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                                <input type="text" id="EstimateTitle" class="form form-control mt-1" placeholder="Название объекта">
-                                <input type="text" id="EstimateNumber" class="form form-control mt-1" placeholder="Номер сметы">
-                                <input type="text" id="EstimateCustomerName" class="form form-control mt-1 mb-1" placeholder="Назание заказчика">
-                                <input type="number" min="1" step="0.00001" id="EstimateCurrencyRate" class="form form-control mt-1" placeholder="Курс валюты">
-                                <div class="row mt-1">
-                                        <div class="col-md-auto">
-                                                <input type="checkbox" id="EstimateIsDiscounts">
-                                        </div>
-                                        <div class="col-md-auto">
-                                                <label>Процентовка</label>
-                                        </div>
-                                </div>
-
-                        </div>
-                        <div class="modal-footer">
-                                <button type="button" id="CreateEstimate" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Создать</button>
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "№",
+                                                        Data = nameof(TarrificatorItemModel.ItemCode)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Раздел",
+                                                        Data = nameof(TarrificatorItemModel.CategoryName)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Подраздел",
+                                                        Data = nameof(TarrificatorItemModel.SubCategoryName)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Наименование",
+                                                        Data = nameof(TarrificatorItemModel.Name)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Примечание",
+                                                        Data = nameof(TarrificatorItemModel.Description)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Ед. изм.",
+                                                        Data = nameof(TarrificatorItemModel.MeasureString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Тип",
+                                                        Data = nameof(TarrificatorItemModel.TarificatorItemTypeString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Вал.",
+                                                        Data = nameof(TarrificatorItemModel.CurrencyString)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Цена",
+                                                        Data = nameof(TarrificatorItemModel.Price)
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Количество",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderQtyInput",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Модификатор (длинна в метрах)",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderCustomRateInput",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Выбрать",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderAddItemToEstimateButton",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                                new ColumnDefinition()
+                                                {
+                                                        Title = "Изменить",
+                                                        Data = nameof(TarrificatorItemModel.Id),
+                                                        Render = "renderEditItemButton",
+                                                        Orderable = false,
+                                                        Searchable = false
+                                                },
+                                        }
+                                })
                         </div>
                 </div>
         </div>
 </div>
 <script>
         $(document).ready(function () {
-                getTarrifficatorItems("",@Model.PageIndex,@Model.PageSize);
                 $('.page-link').each(function (){
                         $(this).click(function (event){
                                 event.preventDefault()
                         })
                 })
                 $('#searchItemBtn').click(function (){
-                        $('#ful-table-body').html("")
-                        $('#kto-table-body').html("")
-                        getTarrifficatorItems($('#ItemName').val(),@Model.PageIndex,@Model.PageSize);
+                        var table = $('#ful-table').DataTable();
+                        if (table) {
+                                table.ajax.reload();
+                        }
                 })
                 $('#searchForm').submit(function(event) {
                         event.preventDefault(); // Предотвратить стандартное действие (отправку формы)
-                        $('#ful-table-body').html("")
-                        $('#kto-table-body').html("")
-                        const searchRequest=$('#ItemName').val()
-                        getTarrifficatorItems(searchRequest,@Model.PageIndex,@Model.PageSize);
+                        var table = $('#ful-table').DataTable();
+                        if (table) {
+                                table.ajax.reload();
+                        }
 
                 });
         })

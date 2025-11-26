@@ -1,18 +1,145 @@
+@using Estimator.Domain.Enums
 @using Estimator.Models.Estimate
-@model List<EstimateModel>
+@using Estimator.Models.Shared.DataTables
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model EstimateSearchModel
 
-<div class="row mt-3 justify-content-sm-center">
-    <div class="col-md-4">Объект</div>
-    <div class="col-md-1">Дата</div>
-    <div class="col-md-1">Печать</div>
-</div>
 @{
-    foreach (var item in Model)
-    {
-        <div class="row mt-1 justify-content-sm-center">
-            <div class="col-md-4">@item.Name</div>
-            <div class="col-md-1">@item.Date.ToString("dd.MM.yyyy")</div>
-            <div class="col-md-1"><a asp-action="DownloadEstimate" asp-route-id="@item.Id" class="btn btn-success">Печать</a></div>
-        </div>
-    }
+    ViewData["Title"] = "Сметы";
 }
+
+<h1 class="m-3">
+    Сметы
+</h1>
+<div class="card">
+    <div class="card-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="card-title">
+            Поиск Сметы
+        </h3>
+        <a href="@Url.Action("CreateEstimate")" class="btn btn-success"><i class="bi bi-plus"></i>Добавить</a>
+    </div>
+    <form id="searchEstimateForm">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Название сметы</strong>
+                <input type="text" asp-for="EstimateName" class="form form-control" placeholder="Название сметы" id="EstimateName">
+            </div>
+            <div class="col-md-3">
+                <strong>Объекты</strong>
+                <select asp-for="FacilityId" class="form form-select" id="CategoryId">
+                    @{
+                        foreach (var facility in Model.AvailableFacilityList)
+                        {
+                            <option value="@facility.Value">@facility.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <strong>Номер сметы</strong>
+                <input type="text" asp-for="EstimateNumber" class="form form-control" placeholder="Номер сметы" id="EstimateNumber">
+            </div>
+            <div class="col-md-2">
+                <strong>Дата сметы. Период</strong>
+                <div style="display: flex;align-items: center;">
+                    <p class="m-0">от:</p>
+                    <input type="text" asp-for="EstimateStartDate" class="m-1 form form-control" placeholder="Дата от" id="EstimateStartDate">
+                </div>
+                <div style="display: flex;align-items: center;">
+                    <p class="m-0">до:</p>
+                    <input type="text" asp-for="EstimateEndDate" class="m-1 form form-control" placeholder="Дата до" id="EstimateEndDate">
+                </div>
+            </div>
+            <div class="col-md-1" style="display:flex; align-items:center;">
+                <input type="checkbox" asp-for="isClosed" class="form-check-input">
+                <label for="isClosed" class="m-1">Закрыта</label>
+            </div>
+        </div>
+        <div class="row mt-1">
+            <div class="offset-4">
+                <button class="btn btn-primary" id="searchEstimateFormBtn">Найти</button>
+            </div>
+        </div>
+    </form>
+    @* <div class="row mt-3 justify-content-sm-center"> *@
+    @*     <div class="col-md-4">Объект</div> *@
+    @*     <div class="col-md-1">Дата</div> *@
+    @*     <div class="col-md-1">Печать</div> *@
+    @* </div> *@
+    @* @{ *@
+    @*     foreach (var item in Model) *@
+    @*     { *@
+    @*         <div class="row mt-1 justify-content-sm-center"> *@
+    @*             <div class="col-md-4">@item.Name</div> *@
+    @*             <div class="col-md-1">@item.Date.ToString("dd.MM.yyyy")</div> *@
+    @*             <div class="col-md-1"><a asp-action="DownloadEstimate" asp-route-id="@item.Id" class="btn btn-success">Печать</a></div> *@
+    @*         </div> *@
+    @*     } *@
+    @* } *@
+</div>
+<div class="card">
+    <div class="table-responsive">
+        @await Component.InvokeAsync("DataTable", new DataTableModel
+        {
+            Name = "estimate-list-table",
+            Url = Url.Action("EstimateList", "Home"),
+            Length = Model.PageSize,
+            SearchButtonId = "searchEstimateFormBtn",
+            Searching = true,
+            SearchFieldNames = new List<string>
+            {
+                nameof(Model.isClosed),
+                nameof(Model.FacilityId),
+                nameof(Model.EstimateName),
+                nameof(Model.EstimateNumber),
+                nameof(Model.EstimateStartDate),
+                nameof(Model.EstimateEndDate),
+                nameof(Model.isClosed),
+            },
+            Columns = new List<ColumnDefinition>
+            {
+                new ColumnDefinition()
+                {
+                    Title = "Номер",
+                    Data = nameof(EstimateModel.EstimateNumber),
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Дата",
+                    Data = nameof(EstimateModel.CreatedAt)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Объект",
+                    Data = nameof(EstimateModel.FacilityName)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Название",
+                    Data = nameof(EstimateModel.Name)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Сумма (с НДС)",
+                    Data = nameof(EstimateModel.EstimateTotalString)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Изменить",
+                    Data = nameof(EstimateModel.Id),
+                    Render = "renderEditEstimateButton",
+                    Orderable = false,
+                    Searchable = false
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Скачать",
+                    Data = nameof(EstimateModel.Id),
+                    Render = "renderExportEstimateButton",
+                    Orderable = false,
+                    Searchable = false
+                },
+            }
+        })
+    </div>
+</div>

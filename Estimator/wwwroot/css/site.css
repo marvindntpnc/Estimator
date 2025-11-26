@@ -1,0 +1,189 @@
+.metismenu {
+    margin: 0;
+}
+
+.metismenu li {
+    display: block;
+    width: 100%;
+}
+
+.metismenu .mm-collapse {
+    display: none;
+}
+
+.metismenu .mm-collapse:not(.mm-show) {
+    display: none;
+}
+
+.metismenu .mm-collapse.mm-show {
+    display: block;
+}
+
+.metismenu .mm-collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    -webkit-transition-timing-function: ease;
+    transition-timing-function: ease;
+    -webkit-transition-duration: .35s;
+    transition-duration: .35s;
+    -webkit-transition-property: height, visibility;
+    transition-property: height, visibility;
+}
+
+.vertical-menu {
+    width: 230px;
+    z-index: 1001;
+    background: #131a20;/*#2f4050;*/
+    bottom: 0;
+    margin-top: 0;
+    top: 0;
+    position: fixed;
+    -webkit-box-shadow: 0 0 20px 0 rgba(183, 190, 199, 0.15);
+    box-shadow: 0 0 20px 0 rgba(183, 190, 199, 0.15);
+}
+
+.navbar-brand-box{
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.main-content {
+    margin-left: 230px;
+    overflow: hidden;
+    background-color: #ecf0f5;
+    min-height: 100vh;
+}
+
+.main-content .content {
+    padding: 0 15px 10px 15px;
+    margin-top: 70px;
+}
+
+.card{
+    margin:1rem 0;
+    padding:1rem;
+}
+
+#sidebar-menu {
+    padding: 10px 0 30px 0;
+}
+
+#sidebar-menu .mm-active > .has-arrow:after {
+    -webkit-transform: rotate(-180deg);
+    transform: rotate(-180deg);
+}
+
+#sidebar-menu .has-arrow:after {
+    content: "\F140";
+    font-family: 'Material Design Icons';
+    display: block;
+    float: right;
+    -webkit-transition: -webkit-transform .2s;
+    transition: -webkit-transform .2s;
+    transition: transform .2s;
+    transition: transform .2s, -webkit-transform .2s;
+    padding-top: 2px;
+    font-size: 1rem;
+}
+
+#sidebar-menu ul li a {
+    display: block;
+    padding: .65rem 1.5rem;
+    color: #a7b1c2;
+    position: relative;
+    font-size: 14px;
+    -webkit-transition: all .4s;
+    transition: all .4s;
+}
+
+#sidebar-menu ul li a:hover {
+    color: #c4d2e8;
+}
+
+#sidebar-menu ul li a i {
+    display: inline-block;
+    min-width: 1.75rem;
+    padding-bottom: .125em;
+    font-size: 1rem;
+    line-height: 1.40625rem;
+    vertical-align: middle;
+}
+
+#sidebar-menu ul li .badge {
+    margin-top: 4px;
+}
+
+#sidebar-menu ul li ul.sub-menu {
+    padding: 0;
+}
+
+#sidebar-menu ul li ul.sub-menu li a {
+    padding: .4rem 1.5rem .4rem 3.25rem;
+    font-size: 13px;
+}
+
+#sidebar-menu ul li ul.sub-menu li ul.sub-menu {
+    padding: 0;
+}
+
+#sidebar-menu ul li ul.sub-menu li ul.sub-menu li a {
+    padding: .4rem 1.5rem .4rem 4.5rem;
+    font-size: 13.5px;
+}
+
+.menu-title {
+    padding: 12px 20px !important;
+    letter-spacing: .05em;
+    pointer-events: none;
+    cursor: default;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #a7b1c2;
+    font-weight: 700;
+}
+.mm-active .active {
+    color: #fff !important;
+}
+
+@media (max-width: 992px) {
+    .vertical-menu {
+        display: none;
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+body.enable-vertical-menu .vertical-menu,
+body.enable-vertical-menu .menu-overlay {
+    display: block;
+}
+
+.menu-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(61, 66, 85, 0.3);
+    display: none;
+    z-index: 1000;
+}
+
+.help-box {
+    margin: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    border: 1px solid #e9ecef;
+}
+.link-style-btn{
+    color: red;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#air-datepicker-global-container{
+    z-index: 9999;
+}

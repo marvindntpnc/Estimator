@@ -1,0 +1,73 @@
+@using Estimator.Models.Estimate
+@using Estimator.Models.Facility
+@using Estimator.Models.Shared.DataTables
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Estimator.Models.Facility.FacilitySearchModel
+@{
+    ViewData["Title"] = "Объекты";
+}
+<div class="card">
+    <div class="card-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="card-title">
+            Поиск Объекта
+        </h3>
+        <a href="@Url.Action("CreateFacility")" class="btn btn-success"><i class="bi bi-plus"></i>Добавить</a>
+    </div>
+    <form id="searchFacilityForm">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Название объекта</strong>
+                <input type="text" asp-for="FacilityName" class="form form-control" placeholder="Название объекта" id="FacilityName">
+            </div>
+            <div class="row mt-1">
+                <div class="offset-4">
+                    <button class="btn btn-primary" id="searchFacilityFormBtn">Найти</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        @await Component.InvokeAsync("DataTable", new DataTableModel
+        {
+            Name = "facility-list-table",
+            Url = Url.Action("FacilityList", "Facility"),
+            Length = Model.PageSize,
+            SearchButtonId = "searchFacilityFormBtn",
+            Searching = true,
+            SearchFieldNames = new List<string>
+            {
+                nameof(Model.FacilityName),
+            },
+            Columns = new List<ColumnDefinition>
+            {
+                new ColumnDefinition()
+                {
+                    Title = "Название объекта",
+                    Data = nameof(FacilityModel.Name),
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Адрес",
+                    Data = nameof(FacilityModel.AddressString)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Часовая ставка",
+                    Data = nameof(FacilityModel.HourPrice)
+                },
+                new ColumnDefinition()
+                {
+                    Title = "Изменить",
+                    Data = nameof(FacilityModel.Id),
+                    Render = "renderEditFacilityButton",
+                    Orderable = false,
+                    Searchable = false
+                }
+            }
+        })
+    </div>
+</div>
+

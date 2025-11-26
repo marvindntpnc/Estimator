@@ -8,15 +8,22 @@
 
     <ItemGroup>
       <PackageReference Include="ClosedXML" Version="0.105.0" />
+        <PackageReference Include="datatables.net-dt" Version="2.3.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+        <PackageReference Include="PagedList.Mvc" Version="4.5.0" />
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Excel\assets\images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\css\images\logo.png" />
     </ItemGroup>
 
 </Project>

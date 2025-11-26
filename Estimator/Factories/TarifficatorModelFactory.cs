@@ -4,6 +4,7 @@ using Estimator.Inerfaces;
 using Estimator.Models;
 using Estimator.Models.EstimateForming;
 using Estimator.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Estimator.Factories;
 
@@ -16,29 +17,87 @@ public class TarifficatorModelFactory:ITarifficatorModelFactory
         _tarifficatorService = tarifficatorService;
     }
 
-    public async Task<EstimateFormingModel> PrepareEstimateFormingModelAsync(EstimateFormingSearchModel searchModel)
+    public async Task<EstimateFormingSearchModel> PrepareEstimateFormingSearchModelAsync()
     {
-        var model=new EstimateFormingModel
+        var model = new EstimateFormingSearchModel();
+        var categoryList = (await _tarifficatorService.GetCategoryListAsync()).OrderBy(x => x.Name).ToList();
+        var subcategoryList= (await _tarifficatorService.GetSubcategoryListAsync()).OrderBy(x => x.Name).ToList();
+        
+        model.AvailableCategories.Add(new SelectListItem
         {
-            FulTarifficator =  new List<TarrificatorItemModel>(),
-            KtoTarifficator = new List<TarrificatorItemModel>()
-        };
-        var fulItems = await _tarifficatorService.GetTarifficatorItemsAsync(searchModel,TarifficatorType.FUL);
-        var ktoItems = await _tarifficatorService.GetTarifficatorItemsAsync(searchModel,TarifficatorType.KTO);
-
-        foreach (var fulItem in fulItems.Items)
+            Text = "Все категории",
+            Value = "0",
+        });
+        foreach (var category in categoryList)
         {
-            model.FulTarifficator.Add(await PrepareTarifficatorItemModel(fulItem));
+            model.AvailableCategories.Add(new SelectListItem
+            {
+                Text = category.Name,
+                Value = category.Id.ToString(),
+            });
         }
         
-        foreach (var ktoItem in ktoItems.Items)
+        model.AvailableSubcategories.Add(new SelectListItem
         {
-            model.KtoTarifficator.Add(await PrepareTarifficatorItemModel(ktoItem));
+            Text = "Все подкатегории",
+            Value = "0",
+        });
+        foreach (var subcategory in subcategoryList)
+        {
+            model.AvailableSubcategories.Add(new SelectListItem
+            {
+                Text = subcategory.Name,
+                Value = subcategory.Id.ToString(),
+            });
         }
         
+        model.AvailableCurrencies.Add(new SelectListItem
+        {
+            Text = "Все валюты",
+            Value = "0",
+        });
+        
+        foreach (var currency in Enum.GetValues(typeof(CurrencyType)))
+        {
+            model.AvailableCurrencies.Add(new SelectListItem
+            {
+                Text = EnumHelper.ConvertCurrencyTypeToString((CurrencyType)currency),
+                Value = ((int)currency).ToString(),
+            });
+        }
+        
+        model.AvailableMeasures.Add(new SelectListItem
+        {
+            Text = "Все единицы измерения",
+            Value = "0",
+        });
+        
+        foreach (var measure in Enum.GetValues(typeof(MeasureType)))
+        {
+            model.AvailableMeasures.Add(new SelectListItem
+            {
+                Text = EnumHelper.ConvertMeasureTypeToString((MeasureType)measure),
+                Value = ((int)measure).ToString(),
+            });
+        }
+        
+        model.AvailableItemTypes.Add(new SelectListItem
+        {
+            Text = "Все типы",
+            Value = "0",
+        });
+        
+        foreach (var itemType in Enum.GetValues(typeof(TarificatorItemType)))
+        {
+            model.AvailableItemTypes.Add(new SelectListItem
+            {
+                Text = EnumHelper.ConvertTarifficatorItemTypeToString((TarificatorItemType)itemType),
+                Value = ((int)itemType).ToString(),
+            });
+        }
         return model;
     }
-
+    
     public async Task<TarrificatorItemModel> PrepareTarifficatorItemModel(TarifficatorItem item)
     {
         var model = new TarrificatorItemModel
@@ -55,12 +114,23 @@ public class TarifficatorModelFactory:ITarifficatorModelFactory
             Name = item.Name,
             Price = item.Price,
             CurrencyType = item.CurrencyType,
+            TarificatorItemTypeString = EnumHelper.ConvertTarifficatorItemTypeToString(item.TarificatorItemType),
             CurrencyString = EnumHelper.ConvertCurrencyTypeToString(item.CurrencyType),
             ItemCode = item.ItemCode,
             TarificatorItemType = item.TarificatorItemType,
-            TarifficatorType = item.TarifficatorType
+            TarifficatorType = item.TarifficatorType,
+            IsCustomAdding = item.IsCustomAdding
         };
         
         return model;
     }
+
+    public async Task<TarrificatorItemModel?> PrepareTarifficatorItemModelByTarifficatorItemId(int id)
+    {
+        var item = await _tarifficatorService.GetTarifficatorItemByIdAsync(id);
+        if (item == null)
+            return null;
+        return await PrepareTarifficatorItemModel(item);
+    }
+    
 }

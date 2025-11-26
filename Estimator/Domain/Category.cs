@@ -1,8 +1,10 @@
-using Estimator.Inerfaces;
-
 namespace Estimator.Domain;
 
-public class Category:IEntity
+/// <summary>
+/// Tarifficator Item Category.
+/// Using for Primary and Subcategories.
+/// </summary>
+public class Category:BaseEntity
 {
     public int Id { get; set; }
     public string Name { get; set; }

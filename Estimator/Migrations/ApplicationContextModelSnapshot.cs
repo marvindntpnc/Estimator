@@ -42,6 +42,64 @@ namespace Estimator.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Estimator.Domain.Contract", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId");
+
+                    b.ToTable("Contracts");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.DiscountRequirement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("EndRange")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("InstallRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("StartRange")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SuppliesRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UninstallRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId");
+
+                    b.ToTable("DiscountRequirement");
+                });
+
             modelBuilder.Entity("Estimator.Domain.Estimate", b =>
                 {
                     b.Property<int>("Id")
@@ -50,30 +108,71 @@ namespace Estimator.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("CurrencyRate")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime?>("ClosedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("CustomerName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("DiscountMaterials")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstimateName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FacilityId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDiscounts")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LocationName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Number")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Estimates");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.EstimateCurrencyRate", b =>
+                {
+                    b.Property<int>("EstimateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CurrencyType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Rate")
+                        .HasPrecision(18, 5)
+                        .HasColumnType("decimal(18,5)");
+
+                    b.HasKey("EstimateId", "CurrencyType");
+
+                    b.ToTable("EstimateCurrencyRates");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.EstimateFacilities", b =>
+                {
+                    b.Property<int>("EstimateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EstimateId", "FacilityId");
+
+                    b.HasIndex("FacilityId");
+
+                    b.ToTable("EstimateFacilities");
                 });
 
             modelBuilder.Entity("Estimator.Domain.EstimateItem", b =>
@@ -84,11 +183,15 @@ namespace Estimator.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("CustomRate")
+                        .HasPrecision(18, 5)
+                        .HasColumnType("decimal(18,5)");
+
                     b.Property<int>("EstimateId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Qty")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Qty")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TarifficatorItemId")
                         .HasColumnType("int");
@@ -98,6 +201,54 @@ namespace Estimator.Migrations
                     b.HasIndex("EstimateId");
 
                     b.ToTable("EstimateItems");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.Facility", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActiveContractId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AreaName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BuildingNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EnclosureNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("HourRate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("HouseNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StateName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Facilities");
                 });
 
             modelBuilder.Entity("Estimator.Domain.TarifficatorItem", b =>
@@ -122,6 +273,12 @@ namespace Estimator.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsCustomAdding")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ItemCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -134,7 +291,8 @@ namespace Estimator.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(18, 5)
+                        .HasColumnType("decimal(18,5)");
 
                     b.Property<int>("SubcategoryId")
                         .HasColumnType("int");
@@ -154,6 +312,43 @@ namespace Estimator.Migrations
                     b.ToTable("TarifficatorItems");
                 });
 
+            modelBuilder.Entity("Estimator.Domain.Contract", b =>
+                {
+                    b.HasOne("Estimator.Domain.Facility", "Facility")
+                        .WithMany("ContractList")
+                        .HasForeignKey("FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facility");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.DiscountRequirement", b =>
+                {
+                    b.HasOne("Estimator.Domain.Facility", "Facility")
+                        .WithMany("DiscountRequirements")
+                        .HasForeignKey("FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facility");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.EstimateFacilities", b =>
+                {
+                    b.HasOne("Estimator.Domain.Estimate", null)
+                        .WithMany()
+                        .HasForeignKey("EstimateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Estimator.Domain.Facility", null)
+                        .WithMany()
+                        .HasForeignKey("FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Estimator.Domain.EstimateItem", b =>
                 {
                     b.HasOne("Estimator.Domain.Estimate", "Estimate")
@@ -168,6 +363,13 @@ namespace Estimator.Migrations
             modelBuilder.Entity("Estimator.Domain.Estimate", b =>
                 {
                     b.Navigation("EstimateItems");
+                });
+
+            modelBuilder.Entity("Estimator.Domain.Facility", b =>
+                {
+                    b.Navigation("ContractList");
+
+                    b.Navigation("DiscountRequirements");
                 });
 #pragma warning restore 612, 618
         }

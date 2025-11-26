@@ -34,20 +34,6 @@ public static class EnumHelper
                 return MeasureType.Piece;
         }
     }
-    public static CurrencyType ConvertCurrencyTypeString(string currencyType)
-    {
-        switch (currencyType)
-        {
-            case "CNY":
-                return CurrencyType.CNY;
-            case "EUR":
-                return CurrencyType.EUR;
-            case "USD":
-                return CurrencyType.USD;
-            default :
-                return CurrencyType.RUB;
-        }
-    }
     public static string ConvertMeasureTypeToString(MeasureType measureType)
     {
         switch (measureType)
@@ -78,7 +64,20 @@ public static class EnumHelper
                 return "шт.";
         }
     }
-    
+    public static CurrencyType ConvertCurrencyTypeString(string currencyType)
+    {
+        switch (currencyType)
+        {
+            case "CNY":
+                return CurrencyType.CNY;
+            case "EUR":
+                return CurrencyType.EUR;
+            case "USD":
+                return CurrencyType.USD;
+            default :
+                return CurrencyType.RUB;
+        }
+    }
     public static string ConvertCurrencyTypeToString(CurrencyType currencyType)
     {
         switch (currencyType)
@@ -90,7 +89,7 @@ public static class EnumHelper
             case CurrencyType.USD:
                 return "USD";
             default :
-                return "RUB";
+                return "РУБ";
         }
     }
 
@@ -107,6 +106,7 @@ public static class EnumHelper
                 
         }
     }
+    
     public static TarifficatorType? ConvertTarifficatorTypeFromString(string tarifficatorType)
     {
         switch (tarifficatorType)
@@ -120,4 +120,5 @@ public static class EnumHelper
                 
         }
     }
+ 
 }

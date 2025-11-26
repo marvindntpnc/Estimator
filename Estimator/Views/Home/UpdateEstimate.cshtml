@@ -1,0 +1,233 @@
+@using Estimator.Models.Estimate
+@using Estimator.Models.Shared.DataTables
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Newtonsoft.Json
+@model Estimator.Models.Estimate.UpdateEstimateModel
+
+@{
+    ViewData["Title"] = "Добавить/Изменить";
+}
+<h1 class="m-3">
+    Добавить/Изменить смету
+</h1>
+<div class="card">
+    <div class="card-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="card-title">
+            Информация о смете
+        </h3>
+        <div>
+            <a href="@Url.Action("DeleteEstimate",new{estimateId=Model.EstimateId})" class="btn btn-danger" style="margin-right: 1rem"><i class="bi bi-trash"></i>Удалить</a>
+            <a href="@Url.Action("DownloadEstimate",new {id=Model.EstimateId})" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i>Скачать</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2">
+                <strong>Номер сметы</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="EstimateNumber" class="form form-control" placeholder="Номер сметы" id="EstimateNumber">*
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Объекты</strong>
+                <div class="d-flex">
+                    <select asp-for="FacilityId" class="form form-select" id="FacilityId">
+                        @{
+                            foreach (var facility in Model.AvailableFacilityList)
+                            {
+                                <option value="@facility.Value">@facility.Text</option>
+                            }
+                        }
+                    </select>*
+                </div>
+            </div>
+            <div class="col-md-3">
+                <strong>Название сметы</strong>
+                <div class="d-flex">
+                    <input type="text" asp-for="EstimateName" class="form form-control" placeholder="Название сметы" id="EstimateName">*
+                </div>
+            </div>
+            <div class="col-md-2">
+                <strong>Дата сметы</strong>
+                <div style="display: flex;align-items: center;">
+                    <input type="text" asp-for="EstimateDate.Date" class="m-1 form form-control" placeholder="Дата сметы" id="EstimateDate">*
+                </div>
+            </div>
+            <div class="col-md-2">
+                <strong>Дата закрытия</strong>
+                <div style="display: flex;align-items: center;">
+                    <input type="text" asp-for="EstimateClosedDate.Value.Date" class="m-1 form form-control"
+                           placeholder="Дата закрытия" id="EstimateClosedDate">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <strong>Часовая тарифная ставка</strong>
+                <p class="m-0" id="FacilityHourRate">@Model.FacilityHourRate р/нч</p>
+            </div>
+            <div class="col-md-2">
+                <strong>Номер договора</strong>
+                <div class="d-flex">
+                    <select asp-for="ContractId" class="form form-select" id="ContractId">
+                        @{
+                            foreach (var contract in Model.AvailableContractList)
+                            {
+                                <option value="@contract.Value">@contract.Text</option>
+                            }
+                        }
+                    </select>*
+                </div>
+            </div>
+            <div class="col-md-1">
+                <strong>Курс EUR</strong>
+                <input type="number" asp-for="EurRate" step="0.00001" class="form form-control" id="EurRate">
+            </div>
+            <div class="col-md-1">
+                <strong>Курс USD</strong>
+                <input type="number" asp-for="UsdRate" step="0.00001" class="form form-control" id="UsdRate">
+            </div>
+            <div class="col-md-1">
+                <strong>Курс CNY</strong>
+                <input type="number" asp-for="CnyRate" step="0.00001" class="form form-control" id="CnyRate">
+            </div>
+            <div class="col-md-1" style="display:flex; align-items:center;">
+                <input type="checkbox" asp-for="IsDiscounts" class="form-check-input" id="IsDiscounts" onclick="toggleDiscountList()">
+                <label for="IsDiscounts" class="m-1">Процентовка</label>
+            </div>
+            <div class="col-md-2" id="DiscountOptionsList" style="margin-top: 1.2rem">
+                <div class="d-flex">
+                    <select asp-for="DiscountMaterials" class="form form-select" id="DiscountMaterials">
+                        @{
+                            foreach (var discountMaterial in Model.AvailableDiscountMaterialsList)
+                            {
+                                <option value="@discountMaterial.Value">@discountMaterial.Text</option>
+                            }
+                        }
+                    </select>*
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-2 offset-3">
+                <div class="btn btn-primary" id="saveEstimateInfoBtn" data-estimate-id="@Model.EstimateId"><i class="bi bi-floppy"></i>Сохранить</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <h3 class="card-title">
+            Добавленные позиции
+        </h3>
+        <button type="button" class="btn btn-success mt-1" onclick="addEstimateItemsModal(@Model.EstimateId)">Добавить позицию</button>
+        @* <a href="@Url.Action("CreateOrEditEstimate")" class="btn btn-primary"><i class="bi bi-plus"></i>Создать</a> *@
+    </div>
+    @await Component.InvokeAsync("DataTable", new DataTableModel
+    {
+        Name = "estimate-items-list-table",
+        Url = Url.Action("EstimateItemsList", "Home", new{EstimateId=Model.EstimateId}),
+        Length = Model.Items.PageSize,
+        Columns = new List<ColumnDefinition>
+        {
+            new ColumnDefinition()
+            {
+                Title = "Код",
+                Data = nameof(EstimateItemModel.TarifficatorItem.ItemCode),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Группа",
+                Data = nameof(EstimateItemModel.TarifficatorItem.CategoryName),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Подгруппа",
+                Data = nameof(EstimateItemModel.TarifficatorItem.SubCategoryName),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Название",
+                Data = nameof(EstimateItemModel.TarifficatorItem.Name),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Вид",
+                Data = nameof(EstimateItemModel.TarifficatorItem.TarificatorItemTypeString),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Кол-во",
+                Data = nameof(EstimateItemModel.Qty),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Мод-р",
+                Data = nameof(EstimateItemModel.CustomRate),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Цена (без НДС)",
+                Data = nameof(EstimateItemModel.RublePriceString),
+            },
+            new ColumnDefinition()
+            {
+                Title = "Сумма (без НДС)",
+                Data = nameof(EstimateItemModel.TotalString),
+            },
+
+            new ColumnDefinition()
+            {
+                Title = "Изменить",
+                Data = nameof(EstimateModel.Id),
+                Render = "renderEditEstimateItemButton",
+                Orderable = false,
+                Searchable = false
+            },
+            new ColumnDefinition()
+            {
+                Title = "Удалить",
+                Data = nameof(EstimateModel.Id),
+                Render = "renderDeleteEstimateItemButton",
+                Orderable = false,
+                Searchable = false
+            },
+        }
+    })
+    <div class="row">
+        <div class="col-md-2 offset-md-9">
+            
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="estimateItemsModal" tabindex="-1" aria-labelledby="estimateItemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog"style="min-width: 85%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Выберите позицию</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @await Html.PartialAsync("EstimateForming",Model.EstimateFormingSearchModel)
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        console.log(typeof @Json.Serialize(Model.IsDiscounts))
+        if (@Json.Serialize(Model.IsDiscounts)){
+            $('#DiscountOptionsList').css('display', 'block');
+        }else{
+            $('#DiscountOptionsList').css('display', 'none');
+        }
+    })
+    function toggleDiscountList(){
+        if ($('#IsDiscounts').is(':checked')){
+            $('#DiscountOptionsList').css('display', 'block');
+        }else{
+            $('#DiscountOptionsList').css('display', 'none');
+        }
+    }
+</script>
